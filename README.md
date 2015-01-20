@@ -71,10 +71,16 @@ Java Usage:
         ediW.record("PDI").element("").composite("C", "4");
         ediW.record("APD").composite("EM2", "0", "1630", "", "6").elementRep(6).element("DA");
 
+        //
+        // -- Create UNT --
+        //
         UNT unt = new UNT();
         unt.MessageReferenceNumber_0062 = unh.MessageReferenceNumber_0062;
         ediW.record(unt);
 
+        //
+        // -- Create UNZ --
+        //
         UNZ unz = new UNZ();
         unz.InterchangeControlReference_0020 = unb.InterchangeControlReference_0020;
         ediW.record(unz);
