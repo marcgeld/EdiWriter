@@ -10,12 +10,12 @@ public class UNA extends Record {
     public UNA(EDIFACTSettings ediSettings) {
 
         // the defaults
-        CompositeSeparator = "" + ediSettings.getEdiCompositeSeparator();
-        ElementSeparator = "" + ediSettings.getEdiElementSeparator();
-        DecimalNotation = "" + ediSettings.getEdiDecimalNotation();
-        ReleaseCharcter = "" + ediSettings.getEdiReleaseCharcter();
+        CompositeSeparator = "" + ediSettings.getCompositeSeparator();
+        ElementSeparator = "" + ediSettings.getElementSeparator();
+        DecimalNotation = "" + ediSettings.getDecimalNotation();
+        ReleaseCharcter = "" + ediSettings.getReleaseCharcter();
         _reserved_for_future_use = " ";
-        SegmentSeparator = "" + ediSettings.getEdiSegmentSeparator();
+        SegmentSeparator = "" + ediSettings.getRecordSeparator();
     }
 
     @EdiElement(length = 1, mandatory = true)

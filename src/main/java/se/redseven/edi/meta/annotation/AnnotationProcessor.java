@@ -12,17 +12,25 @@ import se.redseven.edi.Constants;
 import se.redseven.edi.components.AbstractData;
 import se.redseven.edi.components.Composite;
 import se.redseven.edi.components.Element;
-import se.redseven.edi.utils.EdiParserException;
+import se.redseven.edi.error.ParserException;
 
+/**
+ * Class that process annotation of compiled classes.
+ * If classes are added, don't forget to add '@Retention(RetentionPolicy.RUNTIME)' to the class.
+ *
+ * <p>
+ *  It is very important to add the '@Retention(RetentionPolicy.RUNTIME)' annotation.
+ *  Without that annotation, the compiler will discard any custom annotation in the class file.
+ */
 public class AnnotationProcessor implements Constants {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationProcessor.class);
     private List<String> TEMPLATE_TEXT_LIST = Arrays.asList(Constants.TEMPLATE_TEXT);
 
     /**
-     *
-     * @param obj
-     * @return
+     * Get an List with all data associated with this annotated object.
+     * @param obj object that has the annotated record
+     * @return All data associated with this record.
      */
     public ArrayList<AbstractData> getAnnotatedRecord(Object obj) {
 
@@ -40,34 +48,42 @@ public class AnnotationProcessor implements Constants {
 
                 if (checkCompositeRepetitions(field, compositeGroup)) {
 
-                    // Loop over compositeGroup
-                    for (Composite composite : compositeGroup) {
+                    if (0 == compositeGroup.size()) {
 
-                        Class<? extends Composite> compositeClass = composite.getClass();
-                        String compositeName = compositeClass.getSimpleName();
-                        Field[] compositeFields = compositeClass.getFields();
+                        // Add empty element
+                        LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
+                        recordList.add(new Element(""));
+                    }
+                    else {
+                        // Loop over compositeGroup
+                        for (Composite composite : compositeGroup) {
 
-                        LOG.debug(String.format("Composite: '%s' record '%s'.", compositeName, recName));
+                            Class<? extends Composite> compositeClass = composite.getClass();
+                            String compositeName = compositeClass.getSimpleName();
+                            Field[] compositeFields = compositeClass.getFields();
 
-                        //composite.setValues()
-                        ArrayList<String> elementValueList = new ArrayList<String>();
-                        for (Field compositeField : compositeFields) {
+                            LOG.debug(String.format("Composite: '%s' record '%s'.", compositeName, recName));
 
-                            if (compositeField.isAnnotationPresent(EdiElement.class)) {
+                            //composite.setValues()
+                            ArrayList<String> elementValueList = new ArrayList<String>();
+                            for (Field compositeField : compositeFields) {
 
-                                // Get Value
-                                String elementValue = getElementValue(compositeField, composite);
+                                if (compositeField.isAnnotationPresent(EdiElement.class)) {
 
-                                if (null != elementValue) {
+                                    // Get Value
+                                    String elementValue = getElementValue(compositeField, composite);
 
-                                    elementValueList.add(elementValue);
+                                    if (null != elementValue) {
+
+                                        elementValueList.add(elementValue);
+                                    }
                                 }
                             }
-                        }
 
-                        if (elementValueList.size() > 0) {
+                            if (elementValueList.size() > 0) {
 
-                            recordList.add(new Composite(elementValueList));
+                                recordList.add(new Composite(elementValueList));
+                            }
                         }
                     }
                 }
@@ -79,7 +95,6 @@ public class AnnotationProcessor implements Constants {
 
                 if (null != elementValue) {
 
-                    //System.out.println("EV------> " + elementValue);
                     recordList.add(new Element(elementValue));
                 }
             }
@@ -91,9 +106,9 @@ public class AnnotationProcessor implements Constants {
     /**
      * Get values from an element
      *
-     * @param Element field
-     * @param Object
-     * @return A List with n:th Composite(s)
+     * @param field the active field.
+     * @param obj object with the element (field).
+     * @return Value of that element of that object.
      */
     public String getElementValue(Field field, Object obj) {
 
@@ -130,7 +145,7 @@ public class AnnotationProcessor implements Constants {
             // Exclude from check...
             if (!TEMPLATE_TEXT_LIST.contains(value)) {
 
-                throw new EdiParserException(String.format(
+                throw new ParserException(String.format(
                     "Error: Element '%s' to long, value='%s' (lenght=%d), max=%d class '%s'.", fName, value,
                     value.length(), elementLength, cName));
             }
@@ -139,7 +154,7 @@ public class AnnotationProcessor implements Constants {
         // Check if Mandatory
         if (elementMandatory && value.trim().equals("")) {
 
-            throw new EdiParserException(String.format(
+            throw new ParserException(String.format(
                 "Error: Element '%s' has no value '%s' (lenght=%d) but is mandatory! class '%s'.", fName,
                 String.valueOf(value), elementLength, cName));
         }
@@ -151,8 +166,8 @@ public class AnnotationProcessor implements Constants {
      * Get all repetitions of a composite. A entry can be defined a composite
      * OR it can be a repeating group of composites.
      *
-     * @param field - the Composite OR group of composites.
-     * @param listObj
+     * @param field the Composite OR group of composites.
+     * @param listObj the object that has the composite.
      * @return A List with n:th Composite(s)
      */
     public List<Composite> getCompositeList(Field field, Object listObj) {
@@ -167,7 +182,7 @@ public class AnnotationProcessor implements Constants {
 
         if (!(listObj instanceof List)) {
 
-            throw new EdiParserException(
+            throw new ParserException(
                 String
                     .format(
                         "Error: Definition of annotated EdiSegment. Field '%s' class '%s'. Only types of <java.util.List> is allowed!",
@@ -185,8 +200,8 @@ public class AnnotationProcessor implements Constants {
     /**
      * Get field object
      *
-     * @param field
-     * @param listObj
+     * @param field the Active field.
+     * @param listObj the object that has the field.
      * @return Object
      */
     private Object getObject(Field field, Object listObj) {
@@ -205,7 +220,7 @@ public class AnnotationProcessor implements Constants {
 
             LOG.error(errMsg, ex);
 
-            throw new EdiParserException(errMsg, ex);
+            throw new ParserException(errMsg, ex);
         }
 
         return obj;
@@ -214,10 +229,10 @@ public class AnnotationProcessor implements Constants {
     /**
      * Check repetitions against definitions
      *
-     * @param field
-     * @param compositeList
+     * @param field the Active field to validate against the annotations.
+     * @param compositeList list of composites available.
      * @return true if ok.
-     * @throws EdiParserException if repetitions differs against definitions
+     * @throws ParserException if repetitions differs against definitions
      */
     public boolean checkCompositeRepetitions(Field field, List<Composite> compositeList) {
 
@@ -230,13 +245,13 @@ public class AnnotationProcessor implements Constants {
         // Check repetitions
         if (compositeList.size() < repMin) {
 
-            throw new EdiParserException(String.format(
+            throw new ParserException(String.format(
                 "Repetitions error: min rep. is %d, actually rep. is %d for field '%s' class '%s'.", repMin,
                 compositeList.size(), fName, cName));
         }
         else if (compositeList.size() > repMax) {
 
-            throw new EdiParserException(String.format(
+            throw new ParserException(String.format(
                 "Repetitions error: max rep. is %d, actually rep. is %d for field '%s' class '%s'.", repMax,
                 compositeList.size(), fName, cName));
         }

@@ -16,6 +16,10 @@ import se.redseven.edi.components.UNZ;
 import se.redseven.edi.utils.CompareMessage;
 
 /** Unit test for simple EdiWriter */
+/**
+ *
+ *
+ */
 public class EdiWriterTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdiWriterTest.class);
@@ -23,15 +27,16 @@ public class EdiWriterTest {
     @Test
     public void DiagnosticCheckTest() {
 
-        LOG.info("Compare genarted with static message check");
+        LOG.info("Compare generated with static message check");
 
         assertEquals(true, diagnosticCheck());
     }
 
     @Test
     public void testWriteMedRPT() {
+
         final EDIFACTSettings ediSettings = new EDIFACTSettings();
-        ediSettings.setEdiDecimalNotation('.');
+        ediSettings.setDecimalNotation('.');
 
         final EdiWriter ediW = new EdiWriter(ediSettings);
 
@@ -87,9 +92,9 @@ public class EdiWriterTest {
 
         String ediString = ediW.getEdiMessage();
 
-        System.out.println(ediString);
+        //System.out.println(ediString);
         final String expectedEdifact =
-            "UNA:+.? 'UNB+UNOC:2+CCIS:X:MGK+NLKELA:X:MGK+141112:0708+23714+APERAK'UNH+23714+APERAK:95B:D:UN:BLL001'BMG+997'RFF+Z01:R12064331'UNT+4+23714'UNZ+1+23714'";
+            "UNA:+.? 'UNB+UNOC:2+CCIS:X:MGK+NLKELA:X:MGK+141112:0708+23714++APERAK'UNH+23714+APERAK:95B:D:UN:BLL001'BMG+997'RFF+Z01:R12064331'UNT+4+23714'UNZ+1+23714'";
         LOG.debug("Transformed EDI {}", ediString);
         CompareMessage cm = new CompareMessage(expectedEdifact, ediString);
         int compareMessage;
@@ -104,7 +109,8 @@ public class EdiWriterTest {
             if (compareMessage != 0) {
                 fail();
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
         }
 

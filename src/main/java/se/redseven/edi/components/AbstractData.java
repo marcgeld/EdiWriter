@@ -4,17 +4,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+/** Backing type (data container) for EDI types.<!-- -->
+ * @see Element
+ * @see Composite
+ */
 public abstract class AbstractData {
 
     protected ArrayList<String> values = null;
 
-    /** @return the value at index*/
+    /**
+     * Get values.
+     * @return values
+     */
     public String[] getValues() {
 
         return values.toArray(new String[values.size()]);
     }
 
-    /** @param set value at index */
+    /**
+     * Set values.
+     * @param values - B
+     */
     public void setValues(String[] values) {
 
         this.values = new ArrayList<String>();

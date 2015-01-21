@@ -16,6 +16,7 @@ import se.redseven.edi.components.UNB;
 import se.redseven.edi.components.UNH;
 import se.redseven.edi.components.UNT;
 import se.redseven.edi.components.UNZ;
+import se.redseven.edi.error.ParserException;
 
 public class CompareMessage {
 
@@ -76,7 +77,8 @@ public class CompareMessage {
     }
 
     /**
-     * A test message that should be equal to the generated test message (@see staticTestMessage)
+     * Gets the static test message.
+     * A test message that should be equal to the generated test message (@see getGeneratedTestMessage)
      * @return message
      */
     public static String getStaticTestMessage() {
@@ -86,12 +88,12 @@ public class CompareMessage {
 
     /**
      * Generates a test message that should compare equals to the static test message (@see getGeneratedTestMessage)
-     * @return message
+     * @return Get the dynamic test message
      */
     public static String getGeneratedTestMessage() {
 
         final EDIFACTSettings ediSettings = new EDIFACTSettings();
-        ediSettings.setEdiDecimalNotation('.');
+        ediSettings.setDecimalNotation('.');
 
         final EdiWriter ediW = new EdiWriter(ediSettings);
 
@@ -100,7 +102,7 @@ public class CompareMessage {
         //
         // -- Create UNB --
         //
-        UNB unb = (UNB) ediW.record(new UNB());
+        UNB unb = ediW.record(new UNB());
 
         // Create composite S001
         UNB.S001 s001 = unb.new S001();
@@ -129,7 +131,7 @@ public class CompareMessage {
         //
         // -- Create UNH --
         //
-        UNH unh = (UNH) ediW.record(new UNH());
+        UNH unh = ediW.record(new UNH());
         unh.MessageReferenceNumber_0062 = "1";
 
         // Create composite S004
@@ -192,22 +194,19 @@ public class CompareMessage {
     }
 
     /**
-     *
-     * @return
-     * -1 = if referenceMessage has more lines.
-     * 0  = if booth messages have the same line count and are equal.
-     * 1  = if evaluateMessageLines has more lines.
-     * @throws EdiParserException
+     * Do the actual comparing.
+     * @return -1 = if referenceMessage has more lines. 0  = if booth messages have the same line count and are equal. 1  = if evaluateMessageLines has more lines.
+     * @throws ParserException Exception thrown in case of a parser error
      */
-    public int compareMessage() throws EdiParserException {
+    public int compareMessage() throws ParserException {
 
         messageLog = new ArrayList<String>();
 
-        char refSep = parseEdiString(referenceMessage).getEdiSegmentSeparator();
+        char refSep = parseEdiString(referenceMessage).getRecordSeparator();
         String[] referenceMessageLines = rowSplit(referenceMessage, refSep);
         int referenceMessageLinesCount = null != referenceMessageLines ? referenceMessageLines.length : 0;
 
-        char evlSep = parseEdiString(evaluateMessage).getEdiSegmentSeparator();
+        char evlSep = parseEdiString(evaluateMessage).getRecordSeparator();
         String[] evaluateMessageLines = rowSplit(evaluateMessage, evlSep);
         int evaluateMessageLinesCount = null != evaluateMessageLines ? evaluateMessageLines.length : 0;
 
