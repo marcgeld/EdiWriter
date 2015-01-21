@@ -129,4 +129,43 @@ public class UNB extends Record {
     @EdiElement(length = 1, mandatory = false)
     public String TestIndicator_0035 = null;
 
+    /**
+     * Add new S001 composite.
+     * @return the added composite
+     */
+    public S001 createS001() {
+        S001 s001 = new S001();
+        S001.add(s001);
+        return s001;
+    }
+
+    /**
+     * Add new S002 composite.
+     * @return the added composite.
+     */
+    public S002 createS002() {
+        S002 s002 = new S002();
+        S002.add(s002);
+        return s002;
+    }
+
+    /**
+     * Add new S003 composite.
+     * @return the added composite.
+     */
+    public S003 createS003() {
+        S003 s003 = new S003();
+        S003.add(s003);
+        return s003;
+    }
+
+    /**
+     * Add new S004 composite.
+     * @return the added composite.
+     */
+    public S004 createS004() {
+        S004 s004 = new S004();
+        S004.add(s004);
+        return s004;
+    }
 }
