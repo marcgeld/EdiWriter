@@ -2,9 +2,6 @@ package se.redseven.edi;
 
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import se.redseven.edi.components.Record;
 import se.redseven.edi.components.UNA;
 import se.redseven.edi.utils.CompareMessage;
@@ -17,7 +14,7 @@ import se.redseven.edi.utils.EdiParserException;
  */
 public class EdiWriter implements Constants {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EdiWriter.class);
+    //private static final Logger LOG = LoggerFactory.getLogger(EdiWriter.class);
 
     private EDIFACTSettings ediSettings = null;
     private ArrayList<Record> recordList = new ArrayList<Record>();

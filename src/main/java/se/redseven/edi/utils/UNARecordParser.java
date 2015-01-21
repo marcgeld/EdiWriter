@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import se.redseven.edi.EDIFACTSettings;
 
-public class UNASegmentParser {
+public class UNARecordParser {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UNASegmentParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UNARecordParser.class);
 
     public static EDIFACTSettings parseEdiString(String EdiString) throws EdiParserException {
 

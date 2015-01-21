@@ -1,6 +1,6 @@
 package se.redseven.edi.utils;
 
-import static se.redseven.edi.utils.UNASegmentParser.parseEdiString;
+import static se.redseven.edi.utils.UNARecordParser.parseEdiString;
 
 import java.util.ArrayList;
 import java.util.List;

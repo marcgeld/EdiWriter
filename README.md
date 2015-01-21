@@ -2,6 +2,7 @@
 Java library to write EDIFACT
 
 Java Usage:
+-----------
 
         final EDIFACTSettings ediSettings = new EDIFACTSettings();
         ediSettings.setEdiDecimalNotation('.');
