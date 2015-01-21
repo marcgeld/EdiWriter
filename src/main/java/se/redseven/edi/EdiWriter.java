@@ -27,8 +27,7 @@ public class EdiWriter implements Constants {
         if (ediSettings != null) {
 
             this.ediSettings = ediSettings;
-        }
-        else {
+        } else {
 
             this.ediSettings = new EDIFACTSettings();
         }
@@ -43,15 +42,14 @@ public class EdiWriter implements Constants {
         return record;
     }
 
-    public Record record(Record record) {
-
+    public <T extends Record> T record(T record) {
         recordList.add(record);
         return record;
     }
 
     public UNA createUNA() {
 
-        return (UNA) record(new UNA(ediSettings));
+        return record(new UNA(ediSettings));
     }
 
     /*
@@ -88,20 +86,16 @@ public class EdiWriter implements Constants {
 
                 messageInInterchange = 0;
                 recordsInMessage = 0;
-            }
-            else if (record.getName().equals(UNB_Interchange_Header)) {
+            } else if (record.getName().equals(UNB_Interchange_Header)) {
 
                 messageInInterchange++;
-            }
-            else if (record.getName().equals(UNH_Message_Header)) {
+            } else if (record.getName().equals(UNH_Message_Header)) {
 
                 recordsInMessage = 1;
-            }
-            else if (record.getName().equals(UNT_Message_Trailer)) {
+            } else if (record.getName().equals(UNT_Message_Trailer)) {
 
                 recordContent = recordContent.replace(Constants.SEGMENTS_COUNT, String.format("%d", recordsInMessage));
-            }
-            else if (record.getName().equals(UNZ_Interchange_Trailer)) {
+            } else if (record.getName().equals(UNZ_Interchange_Trailer)) {
 
                 recordContent =
                     recordContent.replace(Constants.INTERCHANGE_COUNT, String.format("%d", messageInInterchange));
