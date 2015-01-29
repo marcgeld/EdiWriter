@@ -3,7 +3,7 @@
 
 	<groupId>se.redseven.edi</groupId>
 	<artifactId>edi-writer</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>EdiWriter</name>
@@ -29,7 +29,8 @@
 		<connection>scm:git:git://github.com/marcgeld/EdiWriter.git</connection>
 		<developerConnection>scm:git:git@github.com:marcgeld/EdiWriter.git</developerConnection>
 		<url>https://github.com/marcgeld/EdiWriter</url>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<distributionManagement>
 		<repository>
