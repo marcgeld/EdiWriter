@@ -4,7 +4,7 @@
 
 	<groupId>se.redseven.edi</groupId>
 	<artifactId>edi-writer</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>EdiWriter</name>
@@ -30,8 +30,24 @@
 		<connection>scm:git:git://github.com/marcgeld/EdiWriter.git</connection>
 		<developerConnection>scm:git:git@github.com:marcgeld/EdiWriter.git</developerConnection>
 		<url>https://github.com/marcgeld/EdiWriter</url>
+		<tag>HEAD</tag>
 	</scm>
 
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>repositoryLocal</id>
+			<name>RepositoryLocal</name>
+			<url>file://localhost/.</url>
+		</repository>
+
+		<snapshotRepository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>repositoryLocalSnapshot</id>
+			<name>RepositoryLocalSnapshot</name>
+			<url>file://localhost/.</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
