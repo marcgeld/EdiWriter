@@ -7,8 +7,31 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>edi-writer</name>
-	<url></url>
+	<name>EdiWriter</name>
+	<description>Java library to write EDIFACT</description>
+	<url>https://github.com/marcgeld/EdiWriter</url>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Marcus Gelderman</name>
+			<email>marcgeld@gmail.com</email>
+			<url>https://github.com/marcgeld</url>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:marcgeld/EdiWriter.git</connection>
+		<developerConnection>scm:git:git@github.com:marcgeld/EdiWriter.git</developerConnection>
+		<url>https://github.com/marcgeld/EdiWriter</url>
+	</scm>
+
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,7 +79,7 @@
 
 	<build>
 		<plugins>
-		
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
