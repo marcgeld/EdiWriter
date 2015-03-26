@@ -1,11 +1,12 @@
 package se.redseven.edi;
 
 import static org.junit.Assert.assertEquals;
-import static se.redseven.edi.utils.EdiUtils.truncateString;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import se.redseven.ediwriter.utils.EdiUtils;
 
 /**
  * Test truncating method.
@@ -24,6 +25,6 @@ public class TruncateTest {
         LOG.info(String.format("Tst input: %s", DATA_TST));
         LOG.info(String.format("Ref input: %s", DATA_REF));
 
-        assertEquals(DATA_REF, truncateString(DATA_TST));
+        assertEquals(DATA_REF, EdiUtils.truncateString(DATA_TST, null));
     }
 }

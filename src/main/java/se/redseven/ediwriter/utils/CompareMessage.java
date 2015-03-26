@@ -48,6 +48,7 @@ public class CompareMessage {
         int compareMessage;
 
         try {
+
             compareMessage = cm.compareMessage();
 
             for (String diffEntry : cm.getMessageLog()) {
@@ -144,7 +145,8 @@ public class CompareMessage {
         ediW.record("IFT").element("3").element("XYZCOMPANY AVAILABILITY");
         ediW.record("ERC").composite("A7V", "1", "AMD");
         ediW.record("IFT").element("3").element("NO MORE FLIGHTS");
-        ediW.record("ODI");
+        Record record = ediW.record("ODI");
+        record.setTruncate(false);
 
         Record tvl = ediW.record("TVL").composite("240493", "1000", "", "1220");
         tvl.element("FRA").element("JFK").element("DL").element("400").element("C");

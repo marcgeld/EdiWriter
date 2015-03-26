@@ -43,10 +43,16 @@ public class EdiUtils {
 
         String outRecord = record;
         String regex = "";
+        EDIFACTSettings ediSettings = settings;
 
-        Character elemSep = settings.getElementSeparator();
-        Character compSep = settings.getCompositeSeparator();
-        Character recSep = settings.getRecordSeparator();
+        if (settings == null) {
+
+            ediSettings = new EDIFACTSettings();
+        }
+
+        Character elemSep = ediSettings.getElementSeparator();
+        Character compSep = ediSettings.getCompositeSeparator();
+        Character recSep = ediSettings.getRecordSeparator();
 
         // Runs of "+" or ":" before "'"
         regex = "[" + elemSep + "|" + compSep + "]+";
@@ -69,7 +75,7 @@ public class EdiUtils {
         outRecord = outRecord.replaceAll(regex, "" + elemSep);
 
         // If only record name is left, truncate it!
-        if (outRecord.matches("\\A[A-Z]{3}" + settings.getRecordSeparator())) {
+        if (outRecord.matches("\\A[A-Z]{3}" + ediSettings.getRecordSeparator())) {
 
             outRecord = "";
         }

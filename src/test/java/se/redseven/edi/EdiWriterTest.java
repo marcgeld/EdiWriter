@@ -2,33 +2,74 @@ package se.redseven.edi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static se.redseven.edi.utils.CompareMessage.diagnosticCheck;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.redseven.edi.utils.CompareMessage;
+import se.redseven.ediwriter.EDIFACTSettings;
+import se.redseven.ediwriter.EdiWriter;
+import se.redseven.ediwriter.UNA;
+import se.redseven.ediwriter.UNB;
+import se.redseven.ediwriter.UNH;
+import se.redseven.ediwriter.UNT;
+import se.redseven.ediwriter.UNZ;
+import se.redseven.ediwriter.utils.CompareMessage;
+import se.redseven.ediwriter.utils.EdiUtils;
 
-/** Unit test for simple EdiWriter */
 /**
- *
- *
+ * Testklass för classen {@link EdiWriter}.
+ * @author ICC
  */
 public class EdiWriterTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdiWriterTest.class);
+
+    /**
+     * Test av output
+     */
+    @Test
+    public void testEdiWriterTestOutputAsciiArt() {
+
+        final String[] asciiArt =
+            {
+                "___________    .___.__ __      __        .__  __              ___________              __   ",
+                "\\_   _____/  __| _/|__/  \\    /  \\_______|__|/  |_  __________\\__    ___/___   _______/  |_ ",
+                " |    __)_  / __ | |  \\   \\/\\/   /\\_  __ \\  \\   __\\/ __ \\_  __ \\|    |_/ __ \\ /  ___/\\   __\\",
+                " |        \\/ /_/ | |  |\\        /  |  | \\/  ||  | \\  ___/|  | \\/|    |\\  ___/ \\___ \\  |  |  ",
+                "/_______  /\\____ | |__| \\__/\\  /   |__|  |__||__|  \\___  >__|   |____| \\___  >____  > |__|  ",
+                "        \\/      \\/           \\/                        \\/                  \\/     \\/        "};
+
+        for (String ascii : asciiArt) {
+
+            LOG.info(ascii);
+        }
+    }
 
     @Test
     public void DiagnosticCheckTest() {
 
         LOG.info("Compare generated with static message check");
 
-        assertEquals(true, diagnosticCheck());
+        assertEquals(true, CompareMessage.diagnosticCheck());
     }
 
     @Test
-    public void testWriteMedRPT() {
+    public void testTruncate() {
+
+        LOG.info("Test truncate");
+
+        final String DATA_REF = "UNB+UNOC:2+CCIS:X:MGK+NLKELA:X:MGK+141112:0708+23714++APERAK'";
+        final String DATA_TST = "UNB+UNOC:2+CCIS:X:MGK+NLKELA:X:MGK+141112:0708::::::::::+23714++APERAK++++++++'";
+
+        LOG.info(String.format("Tst input: %s", DATA_TST));
+        LOG.info(String.format("Ref input: %s", DATA_REF));
+
+        assertEquals(DATA_REF, EdiUtils.truncateString(DATA_TST, new EDIFACTSettings()));
+    }
+
+    @Test
+    public void testWriteMedrpt() {
 
         final EDIFACTSettings ediSettings = new EDIFACTSettings();
         ediSettings.setDecimalNotation('.');
@@ -87,10 +128,11 @@ public class EdiWriterTest {
 
         String ediString = ediW.getEdiMessage();
 
-        //System.out.println(ediString);
         final String expectedEdifact =
-            "UNA:+.? 'UNB+UNOC:2+CCIS:X:MGK+NLKELA:X:MGK+141112:0708+23714++APERAK'UNH+23714+APERAK:95B:D:UN:BLL001'BMG+997'RFF+Z01:R12064331'UNT+4+23714'UNZ+1+23714'";
+            "UNA:+.? 'UNB+UNOC:2+CCIS:X:MGK+NLKELA:X:MGK+141112:0708+23714+APERAK'UNH+23714+APERAK:95B:D:UN:BLL001'BMG+997'RFF+Z01:R12064331'UNT+4+23714'UNZ+1+23714'";
+
         LOG.debug("Transformed EDI {}", ediString);
+
         CompareMessage cm = new CompareMessage(expectedEdifact, ediString);
         int compareMessage;
 
@@ -108,6 +150,5 @@ public class EdiWriterTest {
         catch (Exception ex) {
             ex.printStackTrace();
         }
-
     }
 }
