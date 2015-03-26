@@ -1,7 +1,7 @@
-package se.redseven.edi.components;
+package se.redseven.ediwriter;
 
-import se.redseven.edi.meta.annotation.EdiElement;
-import se.redseven.edi.meta.annotation.EdiRecord;
+import se.redseven.ediwriter.meta.annotation.EdiElement;
+import se.redseven.ediwriter.meta.annotation.EdiRecord;
 
 /**
 

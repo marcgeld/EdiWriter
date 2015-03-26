@@ -1,8 +1,6 @@
-package se.redseven.edi.components;
+package se.redseven.ediwriter;
 
 import java.util.ArrayList;
-
-import se.redseven.edi.EDIFACTSettings;
 
 /**
  * Elements are one of the build blocks of the message.

@@ -1,4 +1,4 @@
-package se.redseven.edi.components;
+package se.redseven.ediwriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

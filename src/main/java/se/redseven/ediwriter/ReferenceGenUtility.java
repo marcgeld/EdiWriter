@@ -1,4 +1,4 @@
-package se.redseven.edi;
+package se.redseven.ediwriter;
 
 import java.util.Random;
 

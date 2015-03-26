@@ -1,4 +1,4 @@
-package se.redseven.edi.meta.annotation;
+package se.redseven.ediwriter.meta.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

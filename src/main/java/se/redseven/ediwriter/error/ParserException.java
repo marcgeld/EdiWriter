@@ -1,4 +1,4 @@
-package se.redseven.edi.error;
+package se.redseven.ediwriter.error;
 
 @SuppressWarnings("serial")
 public class ParserException extends RuntimeException {

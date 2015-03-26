@@ -1,10 +1,10 @@
-package se.redseven.edi.utils;
+package se.redseven.ediwriter.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.redseven.edi.EDIFACTSettings;
-import se.redseven.edi.error.ParserException;
+import se.redseven.ediwriter.EDIFACTSettings;
+import se.redseven.ediwriter.error.ParserException;
 
 public class UNARecordParser {
 

@@ -1,10 +1,10 @@
-package se.redseven.edi.components;
+package se.redseven.ediwriter;
 
 import java.util.ArrayList;
 
-import se.redseven.edi.meta.annotation.EdiComposite;
-import se.redseven.edi.meta.annotation.EdiElement;
-import se.redseven.edi.meta.annotation.EdiRecord;
+import se.redseven.ediwriter.meta.annotation.EdiComposite;
+import se.redseven.ediwriter.meta.annotation.EdiElement;
+import se.redseven.ediwriter.meta.annotation.EdiRecord;
 
 /**
 

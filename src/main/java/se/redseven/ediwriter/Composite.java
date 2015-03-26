@@ -1,17 +1,18 @@
-package se.redseven.edi.components;
+package se.redseven.ediwriter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import se.redseven.edi.EDIFACTSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Composites are one of the build blocks of the message.
  */
 public class Composite extends AbstractData {
 
-    //private static final Logger LOG = LoggerFactory.getLogger(Composite.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Composite.class);
 
     /**
      * Constructor
@@ -60,25 +61,20 @@ public class Composite extends AbstractData {
      */
     public String getFormatedValue(EDIFACTSettings ediSettings) {
 
-        boolean firstSep = true;
         StringBuffer sb = new StringBuffer();
-        Iterator<String> iter = values.iterator();
 
-        do {
+        for (Iterator<String> iterator = values.iterator(); iterator.hasNext();) {
 
-            if (firstSep) {
+            String value = iterator.next();
 
-                sb.append(ediSettings.getElementSeparator());
-                firstSep = false;
-            }
-            else {
-                sb.append(ediSettings.getCompositeSeparator());
+            char sepChar = sb.length() == 0 ? ediSettings.getElementSeparator() : ediSettings.getCompositeSeparator();
 
-            }
-            sb.append(iter.next());
+            LOG.debug(String.format("Sepataror char: '%c', Value: '%s'", sepChar, String.valueOf(value)));
+
+            sb.append(sepChar);
+            sb.append(value);
 
         }
-        while (iter.hasNext());
 
         String valueStr = sb.toString();
 

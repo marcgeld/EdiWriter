@@ -1,18 +1,15 @@
-package se.redseven.edi.meta.annotation;
+package se.redseven.ediwriter;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.redseven.edi.Constants;
-import se.redseven.edi.components.AbstractData;
-import se.redseven.edi.components.Composite;
-import se.redseven.edi.components.Element;
-import se.redseven.edi.error.ParserException;
+import se.redseven.ediwriter.error.ParserException;
+import se.redseven.ediwriter.meta.annotation.EdiComposite;
+import se.redseven.ediwriter.meta.annotation.EdiElement;
 
 /**
  * Class that process annotation of compiled classes.
@@ -26,82 +23,6 @@ public class AnnotationProcessor implements Constants {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationProcessor.class);
     private List<String> TEMPLATE_TEXT_LIST = Arrays.asList(Constants.TEMPLATE_TEXT);
-
-    /**
-     * Get an List with all data associated with this annotated object.
-     * @param obj object that has the annotated record
-     * @return All data associated with this record.
-     */
-    public ArrayList<AbstractData> getAnnotatedRecord(Object obj) {
-
-        ArrayList<AbstractData> recordList = new ArrayList<AbstractData>();
-
-        String recName = obj.getClass().getSimpleName();
-        Field[] fields = obj.getClass().getFields();
-
-        for (Field field : fields) {
-
-            if (field.isAnnotationPresent(EdiComposite.class)) {
-
-                // compositeGroup can be n:th composite(s)!
-                List<Composite> compositeGroup = getCompositeList(field, obj);
-
-                if (checkCompositeRepetitions(field, compositeGroup)) {
-
-                    if (0 == compositeGroup.size()) {
-
-                        // Add empty element
-                        LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
-                        recordList.add(new Element(""));
-                    }
-                    else {
-                        // Loop over compositeGroup
-                        for (Composite composite : compositeGroup) {
-
-                            Class<? extends Composite> compositeClass = composite.getClass();
-                            String compositeName = compositeClass.getSimpleName();
-                            Field[] compositeFields = compositeClass.getFields();
-
-                            LOG.debug(String.format("Composite: '%s' record '%s'.", compositeName, recName));
-
-                            //composite.setValues()
-                            ArrayList<String> elementValueList = new ArrayList<String>();
-                            for (Field compositeField : compositeFields) {
-
-                                if (compositeField.isAnnotationPresent(EdiElement.class)) {
-
-                                    // Get Value
-                                    String elementValue = getElementValue(compositeField, composite);
-
-                                    if (null != elementValue) {
-
-                                        elementValueList.add(elementValue);
-                                    }
-                                }
-                            }
-
-                            if (elementValueList.size() > 0) {
-
-                                recordList.add(new Composite(elementValueList));
-                            }
-                        }
-                    }
-                }
-            }
-            else if (field.isAnnotationPresent(EdiElement.class)) {
-
-                // Get Value
-                String elementValue = getElementValue(field, obj);
-
-                if (null != elementValue) {
-
-                    recordList.add(new Element(elementValue));
-                }
-            }
-        }
-
-        return recordList;
-    }
 
     /**
      * Get values from an element
@@ -152,7 +73,7 @@ public class AnnotationProcessor implements Constants {
         }
 
         // Check if Mandatory
-        if (elementMandatory && value.trim().equals("")) {
+        if (elementMandatory && value.equals("")) {
 
             throw new ParserException(String.format(
                 "Error: Element '%s' has no value '%s' (lenght=%d) but is mandatory! class '%s'.", fName,

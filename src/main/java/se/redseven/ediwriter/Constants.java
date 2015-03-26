@@ -1,10 +1,4 @@
-package se.redseven.edi;
-
-import se.redseven.edi.components.UNA;
-import se.redseven.edi.components.UNB;
-import se.redseven.edi.components.UNH;
-import se.redseven.edi.components.UNT;
-import se.redseven.edi.components.UNZ;
+package se.redseven.ediwriter;
 
 public interface Constants {
 
@@ -26,5 +20,7 @@ public interface Constants {
     public static final String UNT_Message_Trailer = UNT.class.getSimpleName();
     public static final String UNZ_Interchange_Trailer = UNZ.class.getSimpleName();
     public static final String UNA_Record = UNA.class.getSimpleName();
+
+    public static final String SPLIT_REGEXP_SANS_SEP_CHAR = "(?<!\\?)";
 
 }

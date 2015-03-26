@@ -8,11 +8,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.redseven.edi.components.UNA;
-import se.redseven.edi.components.UNB;
-import se.redseven.edi.components.UNH;
-import se.redseven.edi.components.UNT;
-import se.redseven.edi.components.UNZ;
 import se.redseven.edi.utils.CompareMessage;
 
 /** Unit test for simple EdiWriter */

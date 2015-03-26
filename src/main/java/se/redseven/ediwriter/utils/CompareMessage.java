@@ -1,6 +1,4 @@
-package se.redseven.edi.utils;
-
-import static se.redseven.edi.utils.UNARecordParser.parseEdiString;
+package se.redseven.ediwriter.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +6,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.redseven.edi.EDIFACTSettings;
-import se.redseven.edi.EdiWriter;
-import se.redseven.edi.components.Record;
-import se.redseven.edi.components.UNA;
-import se.redseven.edi.components.UNB;
-import se.redseven.edi.components.UNH;
-import se.redseven.edi.components.UNT;
-import se.redseven.edi.components.UNZ;
-import se.redseven.edi.error.ParserException;
+import se.redseven.ediwriter.EDIFACTSettings;
+import se.redseven.ediwriter.EdiWriter;
+import se.redseven.ediwriter.Record;
+import se.redseven.ediwriter.UNA;
+import se.redseven.ediwriter.UNB;
+import se.redseven.ediwriter.UNH;
+import se.redseven.ediwriter.UNT;
+import se.redseven.ediwriter.UNZ;
+import se.redseven.ediwriter.error.ParserException;
 
 public class CompareMessage {
 
@@ -179,20 +177,6 @@ public class CompareMessage {
         return ediMsg;
     }
 
-    public static String[] rowSplit(String message, char ediSegmentSeparator) {
-
-        final String segmentSplitRegexp = String.format("(?<!\\?)%c", ediSegmentSeparator);
-
-        String[] splitedMessage = message.split(segmentSplitRegexp);
-
-        for (int i = 0; i < splitedMessage.length; i++) {
-
-            splitedMessage[i] = splitedMessage[i] + "'";
-        }
-
-        return splitedMessage;
-    }
-
     /**
      * Do the actual comparing.
      * @return -1 = if referenceMessage has more lines. 0  = if booth messages have the same line count and are equal. 1  = if evaluateMessageLines has more lines.
@@ -202,12 +186,12 @@ public class CompareMessage {
 
         messageLog = new ArrayList<String>();
 
-        char refSep = parseEdiString(referenceMessage).getRecordSeparator();
-        String[] referenceMessageLines = rowSplit(referenceMessage, refSep);
+        char refSep = UNARecordParser.parseEdiString(referenceMessage).getRecordSeparator();
+        String[] referenceMessageLines = EdiUtils.rowSplit(referenceMessage, refSep);
         int referenceMessageLinesCount = null != referenceMessageLines ? referenceMessageLines.length : 0;
 
-        char evlSep = parseEdiString(evaluateMessage).getRecordSeparator();
-        String[] evaluateMessageLines = rowSplit(evaluateMessage, evlSep);
+        char evlSep = UNARecordParser.parseEdiString(evaluateMessage).getRecordSeparator();
+        String[] evaluateMessageLines = EdiUtils.rowSplit(evaluateMessage, evlSep);
         int evaluateMessageLinesCount = null != evaluateMessageLines ? evaluateMessageLines.length : 0;
 
         int row = 0;

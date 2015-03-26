@@ -1,4 +1,4 @@
-package se.redseven.edi;
+package se.redseven.ediwriter;
 
 public class EDIFACTSettings {
 
@@ -9,18 +9,33 @@ public class EDIFACTSettings {
 
     // EDIFACT segments
     /** You use this segment to indicate the end of the current record and the start of a new record. (Default character is an apostrophe "'".) */
-    protected char recordSeparator = '\'';
+    public static class preset {
+        public static char recordSeparator = '\'';
+        /** This element acts as a data element delimiter. (Default character is a plus sign "+".) */
+        public static char elementSeparator = '+';
+        /** This element acts as a composite element delimiter. (Default character is a colon ":".) */
+        public static char compositeSeparator = ':';
+        /** This character is used to indicate that the text following contains one of the characters used as a composite, data, or segment separator. Therefore, this character is released from its conventional usage in this instance. (Default character is a question mark "?".) */
+        public static char releaseCharcter = '?';
+        /** In this segment, insert a space where all valid standard codes are used. (Default character is a space " ".) */
+        public static char padCharcter = ' ';
+        /** The recipient ignores the character transferred in this position. (Default character is a full stop/period/dot ".".)
+         ** This segment ensures upward compatibility with earlier versions of the syntax. */
+        public static char decimalNotation = ',';
+    }
+
+    private char recordSeparator = '\'';
     /** This element acts as a data element delimiter. (Default character is a plus sign "+".) */
-    protected char elementSeparator = '+';
+    private char elementSeparator = '+';
     /** This element acts as a composite element delimiter. (Default character is a colon ":".) */
-    protected char compositeSeparator = ':';
+    private char compositeSeparator = ':';
     /** This character is used to indicate that the text following contains one of the characters used as a composite, data, or segment separator. Therefore, this character is released from its conventional usage in this instance. (Default character is a question mark "?".) */
-    protected char releaseCharcter = '?';
+    private char releaseCharcter = '?';
     /** In this segment, insert a space where all valid standard codes are used. (Default character is a space " ".) */
-    protected char padCharcter = ' ';
+    private char padCharcter = ' ';
     /** The recipient ignores the character transferred in this position. (Default character is a full stop/period/dot ".".)
      ** This segment ensures upward compatibility with earlier versions of the syntax. */
-    protected char decimalNotation = ',';
+    private char decimalNotation = ',';
 
     /**
      * Default constructor for Settings
@@ -50,7 +65,7 @@ public class EDIFACTSettings {
 
     /**
      * Get record separator char.
-     * @return teh char that separates records in a message. Usually marks end of line (EOL).
+     * @return the char that separates records in a message. Usually marks end of line (EOL).
      */
     public char getRecordSeparator() {
 
