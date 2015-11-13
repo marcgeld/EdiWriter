@@ -3,9 +3,14 @@ package se.redseven.ediwriter;
 import se.redseven.ediwriter.meta.annotation.EdiElement;
 import se.redseven.ediwriter.meta.annotation.EdiRecord;
 
+/**
+ * UNA EdiRecord.
+ * @author ICC.
+ */
 @EdiRecord(repMin = 0, repMax = 1)
 public class UNA extends Record {
 
+    //TODO Checkstyle varning, rätta till vid tillfälle.
     @EdiElement(length = 1, mandatory = true)
     public String CompositeSeparator = null;
     @EdiElement(length = 1, mandatory = true)
@@ -19,6 +24,10 @@ public class UNA extends Record {
     @EdiElement(length = 1, mandatory = true)
     public String RecordSeparator = null;
 
+    /**
+     * UNA Segment.
+     * @param edifactSettings settings.
+     */
     public UNA(EDIFACTSettings edifactSettings) {
 
         // the defaults
@@ -30,6 +39,10 @@ public class UNA extends Record {
         RecordSeparator = "" + edifactSettings.getRecordSeparator();
     }
 
+    /**
+     * Get the EDIFACTSettings.
+     * @return the EDIFACTSettings
+     */
     public EDIFACTSettings getEDIFACTSettings() {
         EDIFACTSettings edifactSettings = new EDIFACTSettings();
 
@@ -52,6 +65,10 @@ public class UNA extends Record {
         return '\0';
     }
 
+    /**
+     * Get the UNA Record as string.
+     * @return UNA Record as string.
+     */
     public String getUNARecord() {
 
         EDIFACTSettings edifactSettings = getEDIFACTSettings();

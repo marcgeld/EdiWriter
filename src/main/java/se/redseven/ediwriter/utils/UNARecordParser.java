@@ -6,23 +6,33 @@ import org.slf4j.LoggerFactory;
 import se.redseven.ediwriter.EDIFACTSettings;
 import se.redseven.ediwriter.error.ParserException;
 
-public class UNARecordParser {
+/**
+ * Parser for EDIFACT UNA Record.
+ * @author ICC
+ */
+public final class UNARecordParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(UNARecordParser.class);
 
-    public static EDIFACTSettings parseEdiString(String EdiString) throws ParserException {
+    private UNARecordParser() {
 
-        String strUNA = "";
+    }
 
-        if (null == EdiString || EdiString.length() < 8) {
+    /**
+     * Parse an EDIFACT message (string) to verify that UNA exists and to get values.
+     * @param ediString input String.
+     * @return Exception when missing UNA.
+     * @throws ParserException Exception when UNA is not found.
+     */
+    public static EDIFACTSettings parseEdiString(String ediString) throws ParserException {
+
+        if (null == ediString || ediString.length() < 8) {
 
             throw new ParserException("UNA is not found in string");
         }
 
-        strUNA = EdiString.substring(0, 8);
-        LOG.debug(String.format("UNA: [%s]", strUNA));
-
         EDIFACTSettings ediSettings = new EDIFACTSettings();
+        ediSettings.setSegmentUNAFromString(ediString.substring(3, 9));
 
         return ediSettings;
     }

@@ -15,9 +15,10 @@ Pos     Segment                                                     M/C Rep Repr
 @EdiRecord(repMin = 1, repMax = 1)
 public class UNZ extends Record {
 
+    //TODO Checkstyle varning, rätta till vid tillfälle.
+
     @EdiElement(length = 6, mandatory = true, value = INTERCHANGE_COUNT)
     public String InterchangeControlCount_0036 = null;
     @EdiElement(length = 14, mandatory = true, value = INTERCHANGE_CONTROL_REFERENCE)
     public String InterchangeControlReference_0020 = null;
-
 }

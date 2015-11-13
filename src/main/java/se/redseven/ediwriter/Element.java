@@ -2,10 +2,15 @@ package se.redseven.ediwriter;
 
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Elements are one of the build blocks of the message.
  */
 public class Element extends AbstractData {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Element.class);
 
     /**
      * Element constructor.
@@ -42,8 +47,10 @@ public class Element extends AbstractData {
      */
     public String getFormatedValue(EDIFACTSettings ediSettings) {
 
-        String value = String.format("%c%s", ediSettings.getElementSeparator(), getValue());
+        String escValue = ediSettings.escapeString(getValue());
+        LOG.debug(String.format("Sepataror char: '%c', Value: '%s' esc: '%s'", ediSettings.getElementSeparator(),
+            getValue(), escValue));
 
-        return value;
+        return String.format("%c%s", ediSettings.getElementSeparator(), escValue);
     }
 }

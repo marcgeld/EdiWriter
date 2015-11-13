@@ -3,6 +3,11 @@ package se.redseven.ediwriter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Record.
+ * @author ICC
+ *
+ */
 public class Record implements Constants {
 
     //private static final Logger LOG = LoggerFactory.getLogger(EdiWriter.class);
@@ -29,7 +34,7 @@ public class Record implements Constants {
     }
 
     /**
-     * Get name of record
+     * Get name of record.
      * @return name of record
      */
     public String getName() {
@@ -47,7 +52,7 @@ public class Record implements Constants {
     }
 
     /**
-     * Create new element
+     * Create new element.
      * @param value element name
      * @return the Record, same instance as invoked.
      */
@@ -119,6 +124,7 @@ public class Record implements Constants {
     }
 
     /**
+     * Is EDIFACT truncating on/off.
      * @return the truncate
      */
     public boolean isTruncating() {
@@ -127,6 +133,7 @@ public class Record implements Constants {
     }
 
     /**
+     * Set EDIFACT truncating on/off.
      * @param truncate the truncate to set
      */
     public void setTruncate(boolean truncate) {

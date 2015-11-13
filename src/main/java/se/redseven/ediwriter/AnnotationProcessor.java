@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,11 +22,22 @@ import se.redseven.ediwriter.meta.annotation.EdiElement;
  */
 public class AnnotationProcessor implements Constants {
 
+    private static final String REPETITIONS_ERROR_MAX =
+        "Repetitions error: max rep. is %d, actually rep. is %d for field '%s' class '%s'.";
+    private static final String REPETITIONS_ERROR_MIN =
+        "Repetitions error: min rep. is %d, actually rep. is %d for field '%s' class '%s'.";
+    private static final String ERROR_ACCESSING_OBJECT = "Error: Accessing object on: '%s' class '%s'.";
+    private static final String ERROR_ELEMENT_HAS_NO_VALUE =
+        "Error: Element '%s' has no value '%s' (lenght=%d) but is mandatory! class '%s'.";
+    private static final String ERROR_ELEMENT_TO_LONG =
+        "Error: Element '%s' to long, value='%s' (lenght=%d), max=%d class '%s'.";
+    private static final String ERROR_DEFINITION_JAVA_UTIL_LIST_IS_ALLOWED =
+        "Error: Definition of annotated EdiSegment. Field '%s' class '%s'. Only types of <java.util.List> is allowed!";
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationProcessor.class);
-    private List<String> TEMPLATE_TEXT_LIST = Arrays.asList(Constants.TEMPLATE_TEXT);
+    private List<String> templateText = Arrays.asList(Constants.TEMPLATE_TEXT);
 
     /**
-     * Get values from an element
+     * Get values from an element.
      *
      * @param field the active field.
      * @param obj object with the element (field).
@@ -46,38 +58,30 @@ public class AnnotationProcessor implements Constants {
         if (elemObj == null) {
 
             value = "";
-        }
-        else {
+        } else {
 
             value = String.valueOf(elemObj);
         }
 
-        LOG.debug(String.format("Element '%s' value '%s' default value '%s' max-lenght=%d class '%s'.", fName,
-            String.valueOf(value), String.valueOf(defValue), elementLength, cName));
+        LOG.debug(String.format("Element '%s' value '%s' default value '%s' max-lenght=%d class '%s'.", fName, value,
+            defValue, elementLength, cName));
 
-        if (defValue != null && !defValue.equals("") && value.equals("")) {
+        if (StringUtils.isEmpty(value) && StringUtils.isNotEmpty(defValue)) {
 
-            value = String.valueOf(defValue);
+            value = StringUtils.trimToEmpty(value);
         }
 
-        // Check length
-        if (value.length() > elementLength) {
+        // Check length and possible Exclude from check...
+        if ((value.length() > elementLength) && !templateText.contains(value)) {
 
-            // Exclude from check...
-            if (!TEMPLATE_TEXT_LIST.contains(value)) {
-
-                throw new ParserException(String.format(
-                    "Error: Element '%s' to long, value='%s' (lenght=%d), max=%d class '%s'.", fName, value,
-                    value.length(), elementLength, cName));
-            }
+            throw new ParserException(
+                String.format(ERROR_ELEMENT_TO_LONG, fName, value, value.length(), elementLength, cName));
         }
 
         // Check if Mandatory
-        if (elementMandatory && value.equals("")) {
+        if (elementMandatory && StringUtils.isEmpty(value)) {
 
-            throw new ParserException(String.format(
-                "Error: Element '%s' has no value '%s' (lenght=%d) but is mandatory! class '%s'.", fName,
-                String.valueOf(value), elementLength, cName));
+            throw new ParserException(String.format(ERROR_ELEMENT_HAS_NO_VALUE, fName, value, elementLength, cName));
         }
 
         return value.length() > 0 ? value : null;
@@ -103,14 +107,10 @@ public class AnnotationProcessor implements Constants {
 
         if (!(listObj instanceof List)) {
 
-            throw new ParserException(
-                String
-                    .format(
-                        "Error: Definition of annotated EdiSegment. Field '%s' class '%s'. Only types of <java.util.List> is allowed!",
-                        fName, cName));
+            throw new ParserException(String.format(ERROR_DEFINITION_JAVA_UTIL_LIST_IS_ALLOWED, fName, cName));
         }
 
-        LOG.debug(String.format("Field '%s' (%d/%d) class '%s'", fName, repMin, repMax, cName));
+        LOG.debug(String.format("Composite '%s' (%d/%d) class '%s'", fName, repMin, repMax, cName));
 
         @SuppressWarnings("unchecked")
         List<Composite> compositeList = (List<Composite>) listObj;
@@ -119,7 +119,7 @@ public class AnnotationProcessor implements Constants {
     }
 
     /**
-     * Get field object
+     * Get field object.
      *
      * @param field the Active field.
      * @param listObj the object that has the field.
@@ -132,15 +132,17 @@ public class AnnotationProcessor implements Constants {
         Object obj = null;
 
         try {
-
             obj = field.get(listObj);
-        }
-        catch (IllegalArgumentException | IllegalAccessException ex) {
+        } catch (IllegalArgumentException ex) {
 
-            String errMsg = String.format("Error: Accessing object on: '%s' class '%s'.", fName, cName);
-
+            String errMsg = String.format(ERROR_ACCESSING_OBJECT, fName, cName);
             LOG.error(errMsg, ex);
+            throw new ParserException(errMsg, ex);
 
+        } catch (IllegalAccessException ex) {
+
+            String errMsg = String.format(ERROR_ACCESSING_OBJECT, fName, cName);
+            LOG.error(errMsg, ex);
             throw new ParserException(errMsg, ex);
         }
 
@@ -148,7 +150,7 @@ public class AnnotationProcessor implements Constants {
     }
 
     /**
-     * Check repetitions against definitions
+     * Check repetitions against definitions.
      *
      * @param field the Active field to validate against the annotations.
      * @param compositeList list of composites available.
@@ -166,15 +168,11 @@ public class AnnotationProcessor implements Constants {
         // Check repetitions
         if (compositeList.size() < repMin) {
 
-            throw new ParserException(String.format(
-                "Repetitions error: min rep. is %d, actually rep. is %d for field '%s' class '%s'.", repMin,
-                compositeList.size(), fName, cName));
-        }
-        else if (compositeList.size() > repMax) {
+            throw new ParserException(String.format(REPETITIONS_ERROR_MIN, repMin, compositeList.size(), fName, cName));
 
-            throw new ParserException(String.format(
-                "Repetitions error: max rep. is %d, actually rep. is %d for field '%s' class '%s'.", repMax,
-                compositeList.size(), fName, cName));
+        } else if (compositeList.size() > repMax) {
+
+            throw new ParserException(String.format(REPETITIONS_ERROR_MAX, repMax, compositeList.size(), fName, cName));
         }
 
         return true;

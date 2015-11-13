@@ -15,7 +15,7 @@ public class Composite extends AbstractData {
     private static final Logger LOG = LoggerFactory.getLogger(Composite.class);
 
     /**
-     * Constructor
+     * Constructor.
      * @param values String array with values.
      */
     public Composite(String... values) {
@@ -29,7 +29,7 @@ public class Composite extends AbstractData {
     }
 
     /**
-     * Constructor
+     * Constructor.
      * @param values Java Collection List with values.
      */
     public Composite(List<String> values) {
@@ -61,22 +61,23 @@ public class Composite extends AbstractData {
      */
     public String getFormatedValue(EDIFACTSettings ediSettings) {
 
-        StringBuffer sb = new StringBuffer();
+        String valueStr = "";
 
         for (Iterator<String> iterator = values.iterator(); iterator.hasNext();) {
 
-            String value = iterator.next();
+            String value = String.format("%s", iterator.next());
+            String escValue = ediSettings.escapeString(value);
+            char sepChar = ediSettings.getCompositeSeparator();
 
-            char sepChar = sb.length() == 0 ? ediSettings.getElementSeparator() : ediSettings.getCompositeSeparator();
+            if (0 == valueStr.length()) {
 
-            LOG.debug(String.format("Sepataror char: '%c', Value: '%s'", sepChar, String.valueOf(value)));
+                sepChar = ediSettings.getElementSeparator();
+            }
 
-            sb.append(sepChar);
-            sb.append(value);
+            LOG.debug(String.format("Sepataror char: '%c', Value: '%s' esc: '%s'", sepChar, value, escValue));
 
+            valueStr += String.format("%c%s", sepChar, escValue);
         }
-
-        String valueStr = sb.toString();
 
         return valueStr;
     }

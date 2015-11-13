@@ -9,9 +9,13 @@ import se.redseven.ediwriter.EDIFACTSettings;
 /**
  * Utilities for EDI.
  */
-public class EdiUtils {
+public final class EdiUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdiUtils.class);
+
+    private EdiUtils() {
+
+    }
 
     /**
      * Escape a values according to EDIFACT rules.
@@ -33,8 +37,7 @@ public class EdiUtils {
     }
 
     /**
-     * Truncate String
-     *
+     * Truncate String.
      * @param record Record to truncate.
      * @param settings Settings to use when truncating.
      * @return String truncateded according to rules.
@@ -43,16 +46,10 @@ public class EdiUtils {
 
         String outRecord = record;
         String regex = "";
-        EDIFACTSettings ediSettings = settings;
 
-        if (settings == null) {
-
-            ediSettings = new EDIFACTSettings();
-        }
-
-        Character elemSep = ediSettings.getElementSeparator();
-        Character compSep = ediSettings.getCompositeSeparator();
-        Character recSep = ediSettings.getRecordSeparator();
+        Character elemSep = settings.getElementSeparator();
+        Character compSep = settings.getCompositeSeparator();
+        Character recSep = settings.getRecordSeparator();
 
         // Runs of "+" or ":" before "'"
         regex = "[" + elemSep + "|" + compSep + "]+";
@@ -75,7 +72,7 @@ public class EdiUtils {
         outRecord = outRecord.replaceAll(regex, "" + elemSep);
 
         // If only record name is left, truncate it!
-        if (outRecord.matches("\\A[A-Z]{3}" + ediSettings.getRecordSeparator())) {
+        if (outRecord.matches("\\A[A-Z]{3}" + settings.getRecordSeparator())) {
 
             outRecord = "";
         }
@@ -89,7 +86,7 @@ public class EdiUtils {
     }
 
     /**
-     * Split EDIFACT message on segment ediSegmentSeparator
+     * Split EDIFACT message on segment ediSegmentSeparator.
      *
      * @param message Message to split
      * @param ediSegmentSeparator character to split on.

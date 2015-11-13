@@ -1,7 +1,5 @@
 package se.redseven.ediwriter;
 
-import static se.redseven.ediwriter.utils.EdiUtils.truncateString;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import se.redseven.ediwriter.meta.annotation.EdiComposite;
 import se.redseven.ediwriter.meta.annotation.EdiElement;
 import se.redseven.ediwriter.meta.annotation.EdiRecord;
+import se.redseven.ediwriter.utils.EdiUtils;
 
 /**
  * A <tt>EdiWriter</tt> writes and escapes EDIFACT.
@@ -41,8 +40,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
         if (ediSettings != null) {
 
             this.ediSettings = ediSettings;
-        }
-        else {
+        } else {
 
             this.ediSettings = new EDIFACTSettings();
         }
@@ -51,7 +49,8 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
     }
 
     /**
-     * @return the ediSettings
+     * EDIFACT-Settings.
+     * @return the ediSettings.
      */
     public EDIFACTSettings getEdiSettings() {
 
@@ -85,7 +84,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
     }
 
     /**
-     * Convenient method for UNA Record
+     * Convenient method for UNA Record.
      * @return UNA Record.
      */
     public UNA createUNA() {
@@ -94,7 +93,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
     }
 
     /**
-     * Get a String representation of the EDIFACT message
+     * Get a String representation of the EDIFACT message.
      * @return The formated EDIFACT Message.
      */
     public String getEdiMessage() {
@@ -104,9 +103,13 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
         int messageInInterchange = 0;
         int recordsInMessage = 0;
 
+        LOG.debug(String.format("Record count: %d", recordList.size()));
+
         for (Record record : recordList) {
 
             String recordContent = getRecord(record);
+
+            LOG.debug(String.format("Record: '%s'", recordContent));
 
             if (recordContent == null || recordContent.equals("")) {
 
@@ -115,24 +118,20 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
             recordsInMessage++;
 
-            if (record.getName().equals(UNA_Record)) {
+            if (record.getName().equals(UNA_RECORD)) {
 
                 messageInInterchange = 0;
                 recordsInMessage = 0;
-            }
-            else if (record.getName().equals(UNB_Interchange_Header)) {
+            } else if (record.getName().equals(UNB_INTERCHANGEHEADER)) {
 
                 messageInInterchange++;
-            }
-            else if (record.getName().equals(UNH_Message_Header)) {
+            } else if (record.getName().equals(UNH_MESSAGE_HEADER)) {
 
                 recordsInMessage = 1;
-            }
-            else if (record.getName().equals(UNT_Message_Trailer)) {
+            } else if (record.getName().equals(UNT_MESSAGE_TRAILER)) {
 
                 recordContent = recordContent.replace(Constants.RECORD_COUNT, String.format("%d", recordsInMessage));
-            }
-            else if (record.getName().equals(UNZ_Interchange_Trailer)) {
+            } else if (record.getName().equals(UNZ_INTERCHANGE_TRAILER)) {
 
                 recordContent =
                     recordContent.replace(Constants.INTERCHANGE_COUNT, String.format("%d", messageInInterchange));
@@ -175,8 +174,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
             if (abstractData instanceof Element) {
 
                 recordValueBuffer.append(((Element) abstractData).getFormatedValue(ediSettings));
-            }
-            else if (abstractData instanceof Composite) {
+            } else if (abstractData instanceof Composite) {
 
                 recordValueBuffer.append(((Composite) abstractData).getFormatedValue(ediSettings));
             }
@@ -187,7 +185,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
         if (ediSettings.isTruncating() && record.isTruncating()) {
 
-            recordString = truncateString(recordString, ediSettings);
+            recordString = EdiUtils.truncateString(recordString, ediSettings);
         }
 
         if (!recordString.equals("")) {
@@ -207,7 +205,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
     private Record processClassFields(Record record, Field[] fields) {
 
         String recName = record.getClass().getSimpleName();
-        ArrayList<AbstractData> recordList = record.getRecordList();
+        ArrayList<AbstractData> localRecordList = record.getRecordList();
         Record outRecord = new Record(recName);
 
         for (Field field : fields) {
@@ -223,9 +221,8 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
                         // Add empty element
                         LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
-                        recordList.add(new Element(""));
-                    }
-                    else {
+                        localRecordList.add(new Element(""));
+                    } else {
                         // Loop over compositeGroup
                         for (Composite composite : compositeGroup) {
 
@@ -258,8 +255,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
                         }
                     }
                 }
-            }
-            else if (field.isAnnotationPresent(EdiElement.class)) {
+            } else if (field.isAnnotationPresent(EdiElement.class)) {
 
                 // Get Value
                 String elementValue = getElementValue(field, record);

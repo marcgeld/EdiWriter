@@ -7,6 +7,8 @@ import se.redseven.ediwriter.meta.annotation.EdiElement;
 import se.redseven.ediwriter.meta.annotation.EdiRecord;
 
 /**
+ * UNB EdiRecord.
+ * @author ICC.
  *
  * Pos     Segment                                                     M/C Rep Repr.
  *
@@ -45,8 +47,12 @@ public class UNB extends Record {
 
     // SYNTAX IDENTIFIER
     @EdiComposite(repMin = 1, repMax = 1)
+    // TODO Checkstyle varning, rätta till vid tillfälle.
     public ArrayList<Composite> S001 = new ArrayList<Composite>();
 
+    /**
+     * EDIFACT UNB S001 Composite.
+     */
     public class S001 extends Composite {
 
         @EdiElement(length = 4, mandatory = true)
@@ -63,6 +69,9 @@ public class UNB extends Record {
     @EdiComposite(repMin = 1, repMax = 1)
     public ArrayList<S002> S002 = new ArrayList<S002>();
 
+    /**
+     * EDIFACT UNB S002 Composite.
+     */
     public class S002 extends Composite {
 
         @EdiElement(length = 35, mandatory = true)
@@ -79,6 +88,9 @@ public class UNB extends Record {
     @EdiComposite(repMin = 1, repMax = 1)
     public ArrayList<S003> S003 = new ArrayList<S003>();
 
+    /**
+     * EDIFACT UNB S003 Composite.
+     */
     public class S003 extends Composite {
 
         @EdiElement(length = 35, mandatory = true)
@@ -95,6 +107,9 @@ public class UNB extends Record {
     @EdiComposite(repMin = 1, repMax = 1)
     public ArrayList<S004> S004 = new ArrayList<S004>();
 
+    /**
+     * EDIFACT UNB S004 Composite.
+     */
     public class S004 extends Composite {
 
         @EdiElement(length = 8, mandatory = true)
@@ -110,6 +125,9 @@ public class UNB extends Record {
     @EdiComposite(repMin = 0, repMax = 1)
     public ArrayList<S005> S005 = new ArrayList<S005>();
 
+    /**
+     * EDIFACT UNB S005 Composite.
+     */
     public class S005 extends Composite {
 
         @EdiElement(length = 14, mandatory = true)
@@ -168,4 +186,15 @@ public class UNB extends Record {
         S004.add(s004);
         return s004;
     }
+
+    /**
+     * Add new S005 composite.
+     * @return the added composite.
+     */
+    public S005 createS005() {
+        S005 s005 = new S005();
+        S005.add(s005);
+        return s005;
+    }
+
 }
