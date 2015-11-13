@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.redseven.ediwriter.EDIFACTSettings;
+import se.redseven.ediwriter.error.ParserException;
 
 /**
  * Utilities for EDI.
@@ -40,9 +41,14 @@ public final class EdiUtils {
      * Truncate String.
      * @param record Record to truncate.
      * @param settings Settings to use when truncating.
-     * @return String truncateded according to rules.
+     * @return String truncated according to rules.
      */
     public static String truncateString(String record, EDIFACTSettings settings) {
+
+        if (null == settings) {
+
+            throw new ParserException("EDIFACTSettings is null");
+        }
 
         String outRecord = record;
         String regex = "";

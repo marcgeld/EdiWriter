@@ -188,11 +188,6 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
             recordString = EdiUtils.truncateString(recordString, ediSettings);
         }
 
-        if (!recordString.equals("")) {
-
-            LOG.debug(String.format("record: %s", String.valueOf(recordString)));
-        }
-
         return recordString;
     }
 
@@ -210,6 +205,8 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
         for (Field field : fields) {
 
+            //LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
+
             if (field.isAnnotationPresent(EdiComposite.class)) {
 
                 // compositeGroup can be n:th composite(s)!
@@ -220,7 +217,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
                     if (0 == compositeGroup.size()) {
 
                         // Add empty element
-                        LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
+                        //LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
                         localRecordList.add(new Element(""));
                     } else {
                         // Loop over compositeGroup

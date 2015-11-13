@@ -22,6 +22,8 @@ import se.redseven.ediwriter.meta.annotation.EdiElement;
  */
 public class AnnotationProcessor implements Constants {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AnnotationProcessor.class);
+
     private static final String REPETITIONS_ERROR_MAX =
         "Repetitions error: max rep. is %d, actually rep. is %d for field '%s' class '%s'.";
     private static final String REPETITIONS_ERROR_MIN =
@@ -33,7 +35,6 @@ public class AnnotationProcessor implements Constants {
         "Error: Element '%s' to long, value='%s' (lenght=%d), max=%d class '%s'.";
     private static final String ERROR_DEFINITION_JAVA_UTIL_LIST_IS_ALLOWED =
         "Error: Definition of annotated EdiSegment. Field '%s' class '%s'. Only types of <java.util.List> is allowed!";
-    private static final Logger LOG = LoggerFactory.getLogger(AnnotationProcessor.class);
     private List<String> templateText = Arrays.asList(Constants.TEMPLATE_TEXT);
 
     /**
@@ -47,39 +48,25 @@ public class AnnotationProcessor implements Constants {
 
         String cName = obj.getClass().getSimpleName();
         String fName = field.getName();
-        String value = null;
+
         EdiElement ediElement = field.getAnnotation(EdiElement.class);
         boolean elementMandatory = ediElement.mandatory();
         int elementLength = ediElement.length();
         String defValue = ediElement.value();
 
         Object elemObj = getObject(field, obj);
+        String value = String.valueOf(elemObj);
 
-        if (elemObj == null) {
+        if ("null".equals(value)) {
 
-            value = "";
-        } else {
-
-            value = String.valueOf(elemObj);
+            value = StringUtils.defaultString(defValue);
         }
 
         LOG.debug(String.format("Element '%s' value '%s' default value '%s' max-lenght=%d class '%s'.", fName, value,
             defValue, elementLength, cName));
 
-        if (StringUtils.isEmpty(value) && StringUtils.isNotEmpty(defValue)) {
-
-            value = StringUtils.trimToEmpty(value);
-        }
-
-        // Check length and possible Exclude from check...
-        if ((value.length() > elementLength) && !templateText.contains(value)) {
-
-            throw new ParserException(
-                String.format(ERROR_ELEMENT_TO_LONG, fName, value, value.length(), elementLength, cName));
-        }
-
         // Check if Mandatory
-        if (elementMandatory && StringUtils.isEmpty(value)) {
+        if (elementMandatory && StringUtils.isBlank(value)) {
 
             throw new ParserException(String.format(ERROR_ELEMENT_HAS_NO_VALUE, fName, value, elementLength, cName));
         }

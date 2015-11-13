@@ -26,6 +26,8 @@ public final class UNARecordParser {
      */
     public static EDIFACTSettings parseEdiString(String ediString) throws ParserException {
 
+        LOG.debug(String.format("Parse: %s", ediString));
+
         if (null == ediString || ediString.length() < 8) {
 
             throw new ParserException("UNA is not found in string");

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+	<Appenders>
+
+		<Console name="CONSOLE" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d %-5p %-30C - %m%n" />
+		</Console>
+
+		<RollingFile name="ROLLINGFILE"
+			fileName="${env:MULE_HOME}/logs/mule-app-melior-aperak-receiver.log"
+			filePattern="${env:MULE_HOME}/logs/mule-app-melior-aperak-receiver-%i.log"
+			ignoreExceptions="false">
+
+			<PatternLayout>
+				<Pattern>%d %-5p %-30C -- %m%n</Pattern>
+			</PatternLayout>
+
+			<Policies>
+				<!-- Start a new file when the current log file reaches a certain size. -->
+				<SizeBasedTriggeringPolicy size="1000 KB" />
+			</Policies>
+
+			<!-- Keep a maximum of 10 log files before removing them. -->
+			<DefaultRolloverStrategy min="1" max="10" />
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<!-- Loglevels: {OFF, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL} See: http://logging.apache.org/log4j/2.x/log4j-api/apidocs/index.html -->
+
+		<AsyncLogger name="se.redseven.ediwriter" level="DEBUG" />
+
+		<AsyncRoot level="INFO">
+			<AppenderRef ref="CONSOLE" />
+		</AsyncRoot>
+
+	</Loggers>
+</Configuration>

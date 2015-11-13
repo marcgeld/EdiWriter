@@ -10,10 +10,10 @@ public interface Constants {
     String ERROR_ELEMENT_CREATION = "Error: Can not create an Edifact element before a record is created";
     String ERROR_COMPOSITE_CREATION = "Error: Can not create an Edifact composite before a record is created";
 
-    String INTERCHANGE_COUNT = "$InterchangeCount$";
-    String INTERCHANGE_CONTROL_REFERENCE = "$InterchangeControlReference$";
-    String RECORD_COUNT = "$RecordCount$";
-    String MESSAGE_REFERENCE = "$MessageReference$";
+    String INTERCHANGE_COUNT = "${InterchangeCount}";
+    String INTERCHANGE_CONTROL_REFERENCE = "${InterchangeControlReference}";
+    String RECORD_COUNT = "${RecordCount}";
+    String MESSAGE_REFERENCE = "${MessageReference}";
 
     String[] TEMPLATE_TEXT = {INTERCHANGE_COUNT, INTERCHANGE_CONTROL_REFERENCE, RECORD_COUNT, MESSAGE_REFERENCE};
 
