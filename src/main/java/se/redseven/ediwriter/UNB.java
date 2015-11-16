@@ -43,7 +43,7 @@ import se.redseven.ediwriter.meta.annotation.EdiRecord;
  *
  */
 @EdiRecord(repMin = 0, repMax = 1)
-public class UNB extends Record {
+public class UNB extends Segment {
 
     // SYNTAX IDENTIFIER
     @EdiComposite(repMin = 1, repMax = 1)

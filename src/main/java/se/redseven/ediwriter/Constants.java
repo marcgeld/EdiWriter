@@ -15,8 +15,6 @@ public interface Constants {
     String RECORD_COUNT = "${RecordCount}";
     String MESSAGE_REFERENCE = "${MessageReference}";
 
-    String[] TEMPLATE_TEXT = {INTERCHANGE_COUNT, INTERCHANGE_CONTROL_REFERENCE, RECORD_COUNT, MESSAGE_REFERENCE};
-
     String UNB_INTERCHANGEHEADER = UNB.class.getSimpleName();
     String UNH_MESSAGE_HEADER = UNH.class.getSimpleName();
     String UNT_MESSAGE_TRAILER = UNT.class.getSimpleName();

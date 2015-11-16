@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.redseven.ediwriter.EDIFACTSettings;
-import se.redseven.ediwriter.utils.EdiUtils;
+import se.redseven.ediwriter.EdiUtils;
 
 /**
  * Test truncating method.

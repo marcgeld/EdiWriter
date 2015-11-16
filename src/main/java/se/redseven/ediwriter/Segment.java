@@ -8,18 +8,16 @@ import java.util.List;
  * @author ICC
  *
  */
-public class Record implements Constants {
-
-    //private static final Logger LOG = LoggerFactory.getLogger(EdiWriter.class);
+public class Segment implements Constants {
 
     private String name = null;
     private boolean truncate = true;
-    private ArrayList<AbstractData> recordList = new ArrayList<AbstractData>();
+    private ArrayList<AbstractData> segmentData = new ArrayList<AbstractData>();
 
     /**
      * Constructor of a record container.
      */
-    public Record() {
+    public Segment() {
 
         this.name = this.getClass().getSimpleName();
     }
@@ -28,7 +26,7 @@ public class Record implements Constants {
      * Constructor of a record container.
      * @param name Record name
      */
-    public Record(String name) {
+    public Segment(String name) {
 
         this.name = name;
     }
@@ -56,10 +54,10 @@ public class Record implements Constants {
      * @param value element name
      * @return the Record, same instance as invoked.
      */
-    public Record element(String value) {
+    public Segment element(String value) {
 
         Element element = new Element(value);
-        recordList.add(element);
+        segmentData.add(element);
 
         return this;
     }
@@ -69,11 +67,11 @@ public class Record implements Constants {
      * @param rep amount of time(s) a empty element should be added (repeated)
      * @return Record (this instance) after creating the repetition.
      */
-    public Record elementRep(int rep) {
+    public Segment elementRep(int rep) {
 
         while (rep-- > 0) {
 
-            recordList.add(new Element(""));
+            segmentData.add(new Element(""));
         }
 
         return this;
@@ -84,10 +82,10 @@ public class Record implements Constants {
      * @param values String(s) with values that makes the composite.
      * @return Record (this instance) after creating the composite.
      */
-    public Record composite(String... values) {
+    public Segment composite(String... values) {
 
         Composite composite = new Composite(values);
-        recordList.add(composite);
+        segmentData.add(composite);
 
         return this;
     }
@@ -97,17 +95,17 @@ public class Record implements Constants {
      * @param valueList List of string(s) with values that makes the composite.
      * @return Record (this instance) after creating the composite.
      */
-    public Record composite(List<String> valueList) {
+    public Segment composite(List<String> valueList) {
 
         Composite composite = new Composite(valueList);
-        recordList.add(composite);
+        segmentData.add(composite);
 
         return this;
     }
 
     public ArrayList<AbstractData> getRecordList() {
 
-        return recordList;
+        return segmentData;
     }
 
     @Override
@@ -115,7 +113,7 @@ public class Record implements Constants {
 
         StringBuffer sb = new StringBuffer();
 
-        for (AbstractData abstractData : recordList) {
+        for (AbstractData abstractData : segmentData) {
 
             sb.append(abstractData.toString());
         }

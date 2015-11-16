@@ -1,10 +1,9 @@
-package se.redseven.ediwriter.utils;
+package se.redseven.ediwriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.redseven.ediwriter.EDIFACTSettings;
 import se.redseven.ediwriter.error.ParserException;
 
 /**
@@ -52,34 +51,24 @@ public final class EdiUtils {
 
         String outRecord = record;
         String regex = "";
+        String elemSepStr = String.format("\\x%02X", settings.getElementSeparator() & 0xff);
+        String compSepStr = String.format("\\x%02X", settings.getCompositeSeparator() & 0xff);
+        String recSepStr = String.format("\\x%02X", settings.getRecordSeparator() & 0xff);
 
-        Character elemSep = settings.getElementSeparator();
-        Character compSep = settings.getCompositeSeparator();
-        Character recSep = settings.getRecordSeparator();
-
-        // Runs of "+" or ":" before "'"
-        regex = "[" + elemSep + "|" + compSep + "]+";
-        if ('+' == elemSep) {
-
-            regex = "[\\" + elemSep + "|" + compSep + "]+" + recSep;
-        }
-
+        // Check for runs of composite separator chars (:) between element separators (+).
+        // +:::::::::+' => ++'
+        regex = String.format("%s+%s", compSepStr, elemSepStr);
         LOG.debug(String.format("regex string: %s", regex));
-        outRecord = outRecord.replaceAll(regex, "" + recSep);
+        outRecord = outRecord.replaceAll(regex, "" + settings.getElementSeparator());
 
-        // Runs of ":" before "+"
-        regex = compSep + "+" + elemSep;
-        if ('+' == elemSep) {
-
-            regex = compSep + "+\\" + elemSep;
-        }
-
+        // Check for runs of element separator chars (+)  before end of line char (')
+        // +++++++++' => '
+        regex = String.format("%s+%s", elemSepStr, recSepStr);
         LOG.debug(String.format("regex string: %s", regex));
-        outRecord = outRecord.replaceAll(regex, "" + elemSep);
+        outRecord = outRecord.replaceAll(regex, "" + settings.getRecordSeparator());
 
         // If only record name is left, truncate it!
         if (outRecord.matches("\\A[A-Z]{3}" + settings.getRecordSeparator())) {
-
             outRecord = "";
         }
 

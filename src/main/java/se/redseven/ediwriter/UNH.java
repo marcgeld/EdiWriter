@@ -43,7 +43,7 @@ import se.redseven.ediwriter.meta.annotation.EdiRecord;
  *
  */
 @EdiRecord(repMin = 1, repMax = 1)
-public class UNH extends Record {
+public class UNH extends Segment {
 
     //TODO Checkstyle varning, rätta till vid tillfälle.
 

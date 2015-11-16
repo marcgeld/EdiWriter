@@ -4,24 +4,42 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.redseven.ediwriter.error.ParserException;
 import se.redseven.ediwriter.meta.annotation.EdiComposite;
 import se.redseven.ediwriter.meta.annotation.EdiElement;
 import se.redseven.ediwriter.meta.annotation.EdiRecord;
-import se.redseven.ediwriter.utils.EdiUtils;
 
 /**
  * A <tt>EdiWriter</tt> writes and escapes EDIFACT.
  * EdiWriter is the main class for generation of EDIFACT.
  */
-public class EdiWriter extends AnnotationProcessor implements Constants {
+public class EdiWriter implements Constants {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdiWriter.class);
 
+    private static final String REPETITIONS_ERROR_MAX =
+        "Repetitions error: max rep. is %d, actually rep. is %d for field '%s' class '%s'.";
+    private static final String REPETITIONS_ERROR_MIN =
+        "Repetitions error: min rep. is %d, actually rep. is %d for field '%s' class '%s'.";
+    private static final String ERROR_ACCESSING_OBJECT = "Error: Accessing object on: '%s' class '%s'.";
+    private static final String ERROR_ELEMENT_HAS_NO_VALUE =
+        "Error: Element '%s' has no value '%s' (lenght=%d) but is mandatory! class '%s'.";
+    private static final String ERROR_ELEMENT_TO_LONG =
+        "Error: Element '%s' to long, value='%s' (lenght=%d), max=%d class '%s'.";
+    private static final String ERROR_DEFINITION_JAVA_UTIL_LIST_IS_ALLOWED =
+        "Error: Definition of annotated EdiSegment. Field '%s' class '%s'. Only types of <java.util.List> is allowed!";
+
     private EDIFACTSettings ediSettings = null;
-    private ArrayList<Record> recordList = new ArrayList<Record>();
+    private ArrayList<Segment> segmentList = new ArrayList<Segment>();
+
+    private int _interchangeCount = -1;
+    private int _segmentCount = -1;
+    //private String _interchangeControlReference = null;
+    //private String _messageReference = null;
 
     /**
      * Constructor for EdiWriter with default EDIFACTSettings.
@@ -29,6 +47,23 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
     public EdiWriter() {
 
         this(new EDIFACTSettings());
+    }
+
+    void addRecord(Segment segment) {
+
+        if (segment.getName().equals(UNA_RECORD)) {
+            _interchangeCount = 0;
+            _segmentCount = 0;
+        } else if (segment.getName().equals(UNB_INTERCHANGEHEADER)) {
+            _interchangeCount++;
+        } else if (segment.getName().equals(UNH_MESSAGE_HEADER)) {
+            _segmentCount = 1;
+        } else if (segment.getName().equals(UNZ_INTERCHANGE_TRAILER)) {
+            // NOP
+        } else {
+            _segmentCount++;
+        }
+        segmentList.add(segment);
     }
 
     /**
@@ -62,11 +97,11 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
      * @param recordName name of the Record.
      * @return Return a Record instance.
      */
-    public Record record(String recordName) {
+    public Segment record(String recordName) {
 
-        Record record = new Record();
+        Segment record = new Segment();
         record.setName(recordName);
-        recordList.add(record);
+        addRecord(record);
 
         return record;
     }
@@ -77,9 +112,9 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
      * @param record add a created Record.
      * @return the same Record as the input.
      */
-    public <T extends Record> T record(T record) {
+    public <T extends Segment> T record(T record) {
 
-        recordList.add(record);
+        addRecord(record);
         return record;
     }
 
@@ -100,41 +135,17 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
         StringBuffer msg = new StringBuffer();
 
-        int messageInInterchange = 0;
-        int recordsInMessage = 0;
+        LOG.debug(String.format("Record count: %d", segmentList.size()));
 
-        LOG.debug(String.format("Record count: %d", recordList.size()));
+        for (Segment record : segmentList) {
 
-        for (Record record : recordList) {
-
-            String recordContent = getRecord(record);
+            String recordContent = getSegment(record);
 
             LOG.debug(String.format("Record: '%s'", recordContent));
 
             if (recordContent == null || recordContent.equals("")) {
 
                 continue;
-            }
-
-            recordsInMessage++;
-
-            if (record.getName().equals(UNA_RECORD)) {
-
-                messageInInterchange = 0;
-                recordsInMessage = 0;
-            } else if (record.getName().equals(UNB_INTERCHANGEHEADER)) {
-
-                messageInInterchange++;
-            } else if (record.getName().equals(UNH_MESSAGE_HEADER)) {
-
-                recordsInMessage = 1;
-            } else if (record.getName().equals(UNT_MESSAGE_TRAILER)) {
-
-                recordContent = recordContent.replace(Constants.RECORD_COUNT, String.format("%d", recordsInMessage));
-            } else if (record.getName().equals(UNZ_INTERCHANGE_TRAILER)) {
-
-                recordContent =
-                    recordContent.replace(Constants.INTERCHANGE_COUNT, String.format("%d", messageInInterchange));
             }
 
             msg.append(recordContent);
@@ -145,31 +156,30 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
     /**
      * Get the formated record using EDIFACTSettings.
-     * @param inRecord Record to format/get
+     * @param inSegment Record to format/get
      * @return String with a formated record
      */
-    public String getRecord(Record inRecord) {
+    public String getSegment(Segment inSegment) {
 
-        Record record = inRecord;
+        Segment segment = inSegment;
         final StringBuffer recordValueBuffer = new StringBuffer();
         String recordString = null;
-        Class<? extends Record> clazz = record.getClass();
+        Class<? extends Segment> clazz = segment.getClass();
 
-        if (inRecord.getName().equals(UNA.class.getSimpleName())) {
+        if (inSegment.getName().equals(UNA.class.getSimpleName())) {
 
-            return ((UNA) inRecord).getUNARecord();
+            return ((UNA) inSegment).getUNARecord();
         }
 
         if (clazz.isAnnotationPresent(EdiRecord.class)) {
 
             // Get annotations to record
-
             Field[] fields = clazz.getFields();
-            record = processClassFields(record, fields);
+            segment = processClassFields(segment, fields);
         }
 
         // Read Elements and Composites
-        for (AbstractData abstractData : record.getRecordList()) {
+        for (AbstractData abstractData : segment.getRecordList()) {
 
             if (abstractData instanceof Element) {
 
@@ -181,9 +191,9 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
         }
 
         recordString =
-            String.format("%s%s%c", record.getName(), recordValueBuffer.toString(), ediSettings.getRecordSeparator());
+            String.format("%s%s%c", segment.getName(), recordValueBuffer.toString(), ediSettings.getRecordSeparator());
 
-        if (ediSettings.isTruncating() && record.isTruncating()) {
+        if (ediSettings.isTruncating() && segment.isTruncating()) {
 
             recordString = EdiUtils.truncateString(recordString, ediSettings);
         }
@@ -192,20 +202,161 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
     }
 
     /**
+     * Get values from an element.
+     *
+     * @param field the active field.
+     * @param obj object with the element (field).
+     * @return Value of that element of that object.
+     */
+    public String getElementValue(Field field, Object obj) {
+
+        String cName = obj.getClass().getSimpleName();
+        String fName = field.getName();
+
+        EdiElement ediElement = field.getAnnotation(EdiElement.class);
+        boolean elementMandatory = ediElement.mandatory();
+        int elementLength = ediElement.length();
+        String defValue = ediElement.value();
+
+        Object elemObj = getObject(field, obj);
+        String value = String.valueOf(elemObj);
+
+        if (StringUtils.equals(defValue, INTERCHANGE_COUNT)) {
+            value = String.format("%d", _interchangeCount);
+        } else if (StringUtils.equals(defValue, RECORD_COUNT)) {
+            value = String.format("%d", _segmentCount);
+        }
+
+        if ("null".equals(value)) {
+            value = StringUtils.defaultString(defValue);
+        }
+
+        LOG.debug(String.format("Element '%s' value '%s' default value '%s' max-lenght=%d class '%s'.", fName, value,
+            defValue, elementLength, cName));
+
+        // Check if Mandatory
+        if (elementMandatory && StringUtils.isBlank(value))
+
+        {
+
+            throw new ParserException(String.format(ERROR_ELEMENT_HAS_NO_VALUE, fName, value, elementLength, cName));
+        }
+
+        if (StringUtils.defaultString(value).length() > elementLength)
+
+        {
+
+            throw new ParserException(String.format(ERROR_ELEMENT_TO_LONG, fName, value, elementLength,
+                StringUtils.defaultString(value).length(), cName));
+        }
+
+        return value.length() > 0 ? value : null;
+
+    }
+
+    /**
+     * Get all repetitions of a composite. A entry can be defined a composite
+     * OR it can be a repeating group of composites.
+     *
+     * @param field the Composite OR group of composites.
+     * @param listObj the object that has the composite.
+     * @return A List with n:th Composite(s)
+     */
+    public List<Composite> getCompositeList(Field field, Object listObj) {
+
+        String cName = listObj.getClass().getSimpleName();
+        String fName = field.getName();
+        EdiComposite ediSegment = field.getAnnotation(EdiComposite.class);
+        int repMax = ediSegment.repMax();
+        int repMin = ediSegment.repMin();
+
+        listObj = getObject(field, listObj);
+
+        if (!(listObj instanceof List)) {
+
+            throw new ParserException(String.format(ERROR_DEFINITION_JAVA_UTIL_LIST_IS_ALLOWED, fName, cName));
+        }
+
+        LOG.debug(String.format("Composite '%s' (%d/%d) class '%s'", fName, repMin, repMax, cName));
+
+        @SuppressWarnings("unchecked")
+        List<Composite> compositeList = (List<Composite>) listObj;
+
+        return compositeList;
+    }
+
+    /**
+     * Get field object.
+     *
+     * @param field the Active field.
+     * @param listObj the object that has the field.
+     * @return Object
+     */
+    private Object getObject(Field field, Object listObj) {
+
+        String cName = listObj.getClass().getSimpleName();
+        String fName = field.getName();
+        Object obj = null;
+
+        try {
+            obj = field.get(listObj);
+        } catch (IllegalArgumentException ex) {
+
+            String errMsg = String.format(ERROR_ACCESSING_OBJECT, fName, cName);
+            LOG.error(errMsg, ex);
+            throw new ParserException(errMsg, ex);
+
+        } catch (IllegalAccessException ex) {
+
+            String errMsg = String.format(ERROR_ACCESSING_OBJECT, fName, cName);
+            LOG.error(errMsg, ex);
+            throw new ParserException(errMsg, ex);
+        }
+
+        return obj;
+    }
+
+    /**
+     * Check repetitions against definitions.
+     *
+     * @param field the Active field to validate against the annotations.
+     * @param compositeList list of composites available.
+     * @return true if ok.
+     * @throws ParserException if repetitions differs against definitions
+     */
+    public boolean checkCompositeRepetitions(Field field, List<Composite> compositeList) {
+
+        EdiComposite ediSegment = field.getAnnotation(EdiComposite.class);
+        String cName = compositeList.getClass().getSimpleName();
+        String fName = field.getName();
+        int repMax = ediSegment.repMax();
+        int repMin = ediSegment.repMin();
+
+        // Check repetitions
+        if (compositeList.size() < repMin) {
+
+            throw new ParserException(String.format(REPETITIONS_ERROR_MIN, repMin, compositeList.size(), fName, cName));
+
+        } else if (compositeList.size() > repMax) {
+
+            throw new ParserException(String.format(REPETITIONS_ERROR_MAX, repMax, compositeList.size(), fName, cName));
+        }
+
+        return true;
+    }
+
+    /**
      * Get a Record with all data associated with its annotated object.
      * @param record
      * @param fields
      * @return Record with updated list
      */
-    private Record processClassFields(Record record, Field[] fields) {
+    private Segment processClassFields(Segment record, Field[] fields) {
 
-        String recName = record.getClass().getSimpleName();
-        ArrayList<AbstractData> localRecordList = record.getRecordList();
-        Record outRecord = new Record(recName);
+        String segmentName = record.getClass().getSimpleName();
+        Segment outSegment = new Segment(segmentName);
 
         for (Field field : fields) {
-
-            //LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
 
             if (field.isAnnotationPresent(EdiComposite.class)) {
 
@@ -216,9 +367,8 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
                     if (0 == compositeGroup.size()) {
 
-                        // Add empty element
-                        //LOG.debug(String.format("Empty composite: '%s' record '%s'.", field.getName(), recName));
-                        localRecordList.add(new Element(""));
+                        // Add empty element grp.
+                        outSegment.element("");
                     } else {
                         // Loop over compositeGroup
                         for (Composite composite : compositeGroup) {
@@ -227,9 +377,8 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
                             String compositeName = compositeClass.getSimpleName();
                             Field[] compositeFields = compositeClass.getFields();
 
-                            LOG.debug(String.format("Composite: '%s' record '%s'.", compositeName, recName));
+                            LOG.debug(String.format("Composite: '%s' record '%s'.", compositeName, segmentName));
 
-                            //composite.setValues()
                             ArrayList<String> elementValueList = new ArrayList<String>();
                             for (Field compositeField : compositeFields) {
 
@@ -247,7 +396,7 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
                             if (elementValueList.size() > 0) {
 
-                                outRecord.composite(elementValueList);
+                                outSegment.composite(elementValueList);
                             }
                         }
                     }
@@ -259,12 +408,14 @@ public class EdiWriter extends AnnotationProcessor implements Constants {
 
                 if (null != elementValue) {
 
-                    outRecord.element(elementValue);
+                    outSegment.element(elementValue);
+                } else {
+                    outSegment.element("");
                 }
             }
         }
 
-        return outRecord;
+        return outSegment;
     }
 
     @Override

@@ -8,7 +8,7 @@ import se.redseven.ediwriter.meta.annotation.EdiRecord;
  * @author ICC.
  */
 @EdiRecord(repMin = 0, repMax = 1)
-public class UNA extends Record {
+public class UNA extends Segment {
 
     //TODO Checkstyle varning, rätta till vid tillfälle.
     @EdiElement(length = 1, mandatory = true)

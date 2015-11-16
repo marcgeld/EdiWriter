@@ -13,7 +13,7 @@ Pos     Segment                                                     M/C Rep Repr
  */
 
 @EdiRecord(repMin = 1, repMax = 1)
-public class UNZ extends Record {
+public class UNZ extends Segment {
 
     //TODO Checkstyle varning, rätta till vid tillfälle.
 
